@@ -3,3 +3,4 @@ plotly
 shiny
 shinywidgets
 datetime
+jupyter
