@@ -1,0 +1,239 @@
+---
+title: "Dashboard over HUSRUM aktiviteter "
+format: dashboard
+server: shiny
+---
+
+```{python}
+import pandas as pd
+import plotly.express as px
+from datetime import date
+from shiny import ui, render
+from shinywidgets import render_widget, output_widget
+
+
+
+df = pd.read_csv("HURU_Data.csv")
+
+df["Event_Date"] = pd.to_datetime(df["Event_Date"], dayfirst=True, errors="coerce")
+df = df[df["Event_Date"].notnull()]
+df = df.sort_values("Event_Date")
+
+min_date = df["Event_Date"].min()
+max_date = df["Event_Date"].max()
+
+df["Participation_Rate"] = (df["Attendance"] / df["Registrations"]) * 100
+
+event_names = ["All Events"] + sorted(df["Event_Name"].unique().tolist())
+```
+ 
+
+## {.sidebar}
+```{python}
+from shiny import render, ui
+
+ui.input_select("selected_event","Vælg aktivitet:",
+    choices=event_names,
+    selected="All Events"
+)
+
+ui.input_date_range(
+    "date_range",
+    "Vælg dato-interval:",
+    start=min_date,
+    end=date.today(),
+    min=min_date,
+    max=date.today()
+)
+
+```
+
+# Dashboard 
+
+## Rows
+```{python}
+#| content: valuebox
+#| title: Samlet antal afholdte aktiviteter (alle data)
+dict(
+    value = len(df),
+    icon =  "calendar"
+)
+
+```
+
+```{python}
+#| content: valuebox
+#| title: Samlet antal deltagere (alle data)
+dict(
+    value = int(df["Attendance"].sum()),
+    icon = "people"
+)
+
+```
+
+```{python}
+#| content: valuebox
+#| title: Samlet gennemsnitlig deltagelsesrate (alle data)
+dict(
+    value = int((df["Attendance"].sum() / df["Registrations"].sum()) * 100),
+    suffix = "%",
+    icon = "percent"
+)
+```
+
+
+## Rows
+```{python}
+@render_widget
+def plot():
+    selected_event = input.selected_event()
+
+    # Hent date range og lav dem til pandas datetime
+    start_date, end_date = map(pd.Timestamp, input.date_range())
+
+    # Filtrer både på valgt event og dato-range
+    df_filtered = df[
+        ((df["Event_Name"] == selected_event) | (selected_event == "All Events")) &
+        (df["Event_Date"] >= start_date) &
+        (df["Event_Date"] <= end_date)
+    ]
+
+
+    # Omdan data til langt format for at få begge linjer i samme plot
+    df_long = df_filtered.melt(
+        id_vars="Event_Date",
+        value_vars=["Attendance", "Registrations"],
+        var_name="Type",
+        value_name="Count"
+    )
+
+    df_long["Event_Date_str"] = df_long["Event_Date"].dt.strftime("%d-%m-%Y")
+
+    fig = px.line(
+        df_long,
+        x="Event_Date_str",
+        y="Count",
+        color="Type",
+        title=f"Tilmeldinger og Fremmøde over tid ({selected_event})",
+        markers=True,
+        labels={
+            "Event_Date_str": "Dato",
+            "Count": "Antal",
+            "Type": "Kategori"
+        }
+    )
+   
+       
+    return fig
+```
+
+```{python}
+@render_widget
+def desc_plot():
+    selected_event = input.selected_event()
+    start_date, end_date = map(pd.Timestamp, input.date_range())
+
+    df_filtered = df[
+        ((df["Event_Name"] == selected_event) | (selected_event == "All Events")) &
+        (df["Event_Date"] >= start_date) &
+        (df["Event_Date"] <= end_date)
+    ]
+
+
+    df_grouped = df_filtered.groupby("Event_Description")[["Attendance", "Registrations"]].mean().reset_index()
+
+    fig = px.bar(
+        df_grouped,
+        x="Event_Description",
+        y=["Attendance", "Registrations"],
+        barmode="group",
+        title=f"Gennemsnitligt fremmøde og tilmeldinger pr. aktivitetsbeskrivelse ({selected_event})",
+        labels={
+            "value": "Gennemsnitligt antal",
+            "Event_Description": "Aktivitetsbeskrivelse",
+            "variable": "Kategori" }
+    )
+
+    return fig
+```
+
+## Rows
+```{python}
+@render_widget
+def gender_event_plot():
+    selected_event = input.selected_event()
+    start_date, end_date = map(pd.Timestamp, input.date_range())
+
+    df_filtered = df[
+        ((df["Event_Name"] == selected_event) | (selected_event == "All Events")) &
+        (df["Event_Date"] >= start_date) &
+        (df["Event_Date"] <= end_date)
+    ]
+
+    # Gruppér på Event_Type og summer mænd og kvinder
+    df_grouped = df_filtered.groupby("Event_Type")[["Participant_Male", "Participant_Female"]].sum().reset_index()
+
+    fig = px.bar(
+        df_grouped,
+        x="Event_Type",
+        y=["Participant_Male", "Participant_Female"],
+        barmode="group",  # eller "stack" hvis du vil stable dem
+        title=f"Kønsfordeling af deltagere pr. aktivitetstype ({selected_event})",
+        labels={
+            "value": "Antal deltagere",
+            "Event_Type": "Aktivitetstype",
+            "variable": "Køn"
+        }
+    )
+
+    return fig
+```
+
+
+```{python}
+@render_widget
+def heatmap():
+    # Konverter date_range til pandas datetime (Timestamp)
+    start_date, end_date = map(pd.Timestamp, input.date_range())
+    
+    # Filtrer data på dato-range
+    df_filtered = df[
+        (df["Event_Date"] >= start_date) &
+        (df["Event_Date"] <= end_date)
+    ].copy()
+
+    # Fjern events uden registreringer for at undgå division med nul
+    df_filtered = df_filtered[df_filtered["Registrations"] > 0]
+
+    # Beregn deltagelsesrate pr. event
+    df_filtered["Participation_Rate"] = (df_filtered["Attendance"] / df_filtered["Registrations"]) * 100
+
+    # Ekstraher måned/år
+    df_filtered["Month"] = df_filtered["Event_Date"].dt.to_period("M").astype(str)
+
+    # Gruppér data på måned og event-type og find gennemsnitlig deltagelsesrate
+    df_grouped = df_filtered.groupby(["Month", "Event_Type"])["Participation_Rate"].mean().reset_index()
+
+    # Lav heatmap
+    fig = px.density_heatmap(
+        df_grouped,
+        x="Month",
+        y="Event_Type",
+        z="Participation_Rate",
+        color_continuous_scale="Viridis",
+        title="Gennemsnitlig deltagelsesrate pr. måned og aktivitetstype",
+        labels={
+            "Month": "Måned",
+            "Event_Type": "Aktivitetstype",
+            "Participation_Rate": "Deltagelsesrate (%)"
+        }
+    )
+
+    return fig
+
+
+
+```
+
+
+
