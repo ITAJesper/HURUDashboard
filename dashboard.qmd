@@ -90,12 +90,27 @@ dict(
 )
 ```
 
+```{python}
+#| content: valuebox
+#| title: Antal rækker efter filtrering
+@render.value
+def filtered_rows_count():
+    selected_event = input.selected_event()
+    start_date, end_date = map(pd.Timestamp, input.date_range())
+
+    df_filtered = df[
+        ((df["Event_Name"] == selected_event) | (selected_event == "All Events")) &
+        (df["Event_Date"] >= start_date) &
+        (df["Event_Date"] <= end_date)
+    ]
+
+    return f"{len(df_filtered)} rækker"
+
+```
+
 
 ## Rows
 ```{python}
-import logging
-logger = logging.getLogger()
-
 @render_widget
 def plot():
     selected_event = input.selected_event()
@@ -103,19 +118,12 @@ def plot():
     # Hent date range og lav dem til pandas datetime
     start_date, end_date = map(pd.Timestamp, input.date_range())
 
-    logger.info(f"✅ [PLOT] Valgt aktivitet: {selected_event}")
-    logger.info(f"✅ [PLOT] Dato-interval: {start_date} til {end_date}")
-
     # Filtrer både på valgt event og dato-range
     df_filtered = df[
         ((df["Event_Name"] == selected_event) | (selected_event == "All Events")) &
         (df["Event_Date"] >= start_date) &
         (df["Event_Date"] <= end_date)
     ]
-
-    logger.info(f"✅ [PLOT] Rækker i df_filtered: {len(df_filtered)}")
-    logger.info(df_filtered[["Event_Name", "Event_Date"]].head().to_string())
-
 
     # Omdan data til langt format for at få begge linjer i samme plot
     df_long = df_filtered.melt(
@@ -126,9 +134,6 @@ def plot():
     )
 
     df_long["Event_Date_str"] = df_long["Event_Date"].dt.strftime("%d-%m-%Y")
-
-    logger.info(f"✅ [PLOT] Rækker i df_long: {len(df_long)}")
-    logger.info(df_long.head().to_string())
 
     fig = px.line(
         df_long,
