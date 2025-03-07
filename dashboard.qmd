@@ -90,12 +90,7 @@ dict(
 )
 ```
 
-
 ## Rows
-
-```{python}
-output_widget("plot")
-```
 ```{python}
 @render_widget
 def plot():
@@ -159,7 +154,7 @@ def desc_plot():
         x="Event_Description",
         y=["Attendance", "Registrations"],
         barmode="group",
-        title=f"Gennemsnitligt fremmøde og tilmeldinger pr. aktivitetsbeskrivelse ({selected_event})",
+        title=f"Gns. fremmøde og tilmeldinger pr. aktivitetsbeskrivelse ({selected_event})",
         labels={
             "value": "Gennemsnitligt antal",
             "Event_Description": "Aktivitetsbeskrivelse",
@@ -233,7 +228,7 @@ def heatmap():
         y="Event_Type",
         z="Participation_Rate",
         color_continuous_scale="Viridis",
-        title="Gennemsnitlig deltagelsesrate pr. måned og aktivitetstype",
+        title="Gns. deltagelsesrate pr. måned og aktivitetstype",
         labels={
             "Month": "Måned",
             "Event_Type": "Aktivitetstype",
@@ -242,7 +237,4 @@ def heatmap():
     )
 
     return fig
-
-
-
 ```

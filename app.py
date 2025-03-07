@@ -73,10 +73,6 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
 
     # ========================================================================
 
-    output_widget("plot")
-
-    # ========================================================================
-
     @render_widget
     def plot():
         selected_event = input.selected_event()
@@ -139,7 +135,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
             x="Event_Description",
             y=["Attendance", "Registrations"],
             barmode="group",
-            title=f"Gennemsnitligt fremmøde og tilmeldinger pr. aktivitetsbeskrivelse ({selected_event})",
+            title=f"Gns. fremmøde og tilmeldinger pr. aktivitetsbeskrivelse ({selected_event})",
             labels={
                 "value": "Gennemsnitligt antal",
                 "Event_Description": "Aktivitetsbeskrivelse",
@@ -211,7 +207,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
             y="Event_Type",
             z="Participation_Rate",
             color_continuous_scale="Viridis",
-            title="Gennemsnitlig deltagelsesrate pr. måned og aktivitetstype",
+            title="Gns. deltagelsesrate pr. måned og aktivitetstype",
             labels={
                 "Month": "Måned",
                 "Event_Type": "Aktivitetstype",
@@ -220,7 +216,6 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
         )
 
         return fig
-
 
     # ========================================================================
 
