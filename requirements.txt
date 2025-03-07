@@ -1,6 +1,6 @@
 pandas
 plotly
-hiny
+shiny
 shinywidgets
 anywidget
 jupyter

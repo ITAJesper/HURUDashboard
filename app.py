@@ -36,8 +36,8 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     from shiny import render, ui
 
     ui.input_select("selected_event","Vælg aktivitet:",
-        choices=event_names,
-        selected="All Events"
+            choices=event_names,
+            selected="All Events"
     )
 
     ui.input_date_range(
@@ -226,7 +226,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     return None
 
 
-_static_assets = ["dashboard_files"]
+_static_assets = ["dashboard_files","HURU_Data.csv"]
 _static_assets = {"/" + sa: Path(__file__).parent / sa for sa in _static_assets}
 
 app = App(
