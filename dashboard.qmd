@@ -93,6 +93,9 @@ dict(
 
 ## Rows
 ```{python}
+import logging
+logger = logging.getLogger()
+
 @render_widget
 def plot():
     selected_event = input.selected_event()
@@ -100,8 +103,8 @@ def plot():
     # Hent date range og lav dem til pandas datetime
     start_date, end_date = map(pd.Timestamp, input.date_range())
 
-    print(f"\n✅ [PLOT] Valgt aktivitet: {selected_event}")
-    print(f"✅ [PLOT] Dato-interval: {start_date} til {end_date}")
+    logger.info(f"✅ [PLOT] Valgt aktivitet: {selected_event}")
+    logger.info(f"✅ [PLOT] Dato-interval: {start_date} til {end_date}")
 
     # Filtrer både på valgt event og dato-range
     df_filtered = df[
@@ -109,6 +112,9 @@ def plot():
         (df["Event_Date"] >= start_date) &
         (df["Event_Date"] <= end_date)
     ]
+
+    logger.info(f"✅ [PLOT] Rækker i df_filtered: {len(df_filtered)}")
+    logger.info(df_filtered[["Event_Name", "Event_Date"]].head().to_string())
 
 
     # Omdan data til langt format for at få begge linjer i samme plot
@@ -119,10 +125,10 @@ def plot():
         value_name="Count"
     )
 
-    print(f"✅ [PLOT] Rækker i df_long: {len(df_long)}")
-    print(df_long.head())
-
     df_long["Event_Date_str"] = df_long["Event_Date"].dt.strftime("%d-%m-%Y")
+
+    logger.info(f"✅ [PLOT] Rækker i df_long: {len(df_long)}")
+    logger.info(df_long.head().to_string())
 
     fig = px.line(
         df_long,
