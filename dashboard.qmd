@@ -100,6 +100,9 @@ def plot():
     # Hent date range og lav dem til pandas datetime
     start_date, end_date = map(pd.Timestamp, input.date_range())
 
+    print(f"\n✅ [PLOT] Valgt aktivitet: {selected_event}")
+    print(f"✅ [PLOT] Dato-interval: {start_date} til {end_date}")
+
     # Filtrer både på valgt event og dato-range
     df_filtered = df[
         ((df["Event_Name"] == selected_event) | (selected_event == "All Events")) &
@@ -115,6 +118,9 @@ def plot():
         var_name="Type",
         value_name="Count"
     )
+
+    print(f"✅ [PLOT] Rækker i df_long: {len(df_long)}")
+    print(df_long.head())
 
     df_long["Event_Date_str"] = df_long["Event_Date"].dt.strftime("%d-%m-%Y")
 
@@ -204,6 +210,8 @@ def gender_event_plot():
 def heatmap():
     # Konverter date_range til pandas datetime (Timestamp)
     start_date, end_date = map(pd.Timestamp, input.date_range())
+
+    print(f"\n✅ [HEATMAP] Dato-interval: {start_date} til {end_date}")
     
     # Filtrer data på dato-range
     df_filtered = df[
