@@ -1,6 +1,6 @@
 pandas
 plotly
-shiny
+hiny
 shinywidgets
-datetime
+anywidget
 jupyter

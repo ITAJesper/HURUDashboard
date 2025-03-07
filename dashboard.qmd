@@ -2,6 +2,13 @@
 title: "Dashboard over HUSRUM aktiviteter "
 format: dashboard
 server: shiny
+dependencies:
+  - pandas
+  - plotly
+  - shiny
+  - shinywidgets
+  - anywidget
+  - jupyter
 ---
 
 ```{python}
@@ -32,10 +39,10 @@ event_names = ["All Events"] + sorted(df["Event_Name"].unique().tolist())
 ```{python}
 from shiny import render, ui
 
-ui.input_select("selected_event","Vælg aktivitet:",
-    choices=event_names,
-    selected="All Events"
-)
+    ui.input_select("selected_event","Vælg aktivitet:",
+        choices=event_names,
+        selected="All Events"
+    )
 
 ui.input_date_range(
     "date_range",
