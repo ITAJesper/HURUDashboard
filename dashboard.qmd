@@ -90,24 +90,6 @@ dict(
 )
 ```
 
-```{python}
-#| content: valuebox
-#| title: Antal rækker efter filtrering
-@render.value
-def filtered_rows_count():
-    selected_event = input.selected_event()
-    start_date, end_date = map(pd.Timestamp, input.date_range())
-
-    df_filtered = df[
-        ((df["Event_Name"] == selected_event) | (selected_event == "All Events")) &
-        (df["Event_Date"] >= start_date) &
-        (df["Event_Date"] <= end_date)
-    ]
-
-    return f"{len(df_filtered)} rækker"
-
-```
-
 
 ## Rows
 ```{python}
@@ -264,4 +246,19 @@ def heatmap():
 ```
 
 
+```{python}
+from shiny import render
 
+@render.text
+def filtered_rows_count():
+    selected_event = input.selected_event()
+    start_date, end_date = map(pd.Timestamp, input.date_range())
+
+    df_filtered = df[
+        ((df["Event_Name"] == selected_event) | (selected_event == "All Events")) &
+        (df["Event_Date"] >= start_date) &
+        (df["Event_Date"] <= end_date)
+    ]
+
+    return f"{len(df_filtered)} rækker efter filtrering"
+```

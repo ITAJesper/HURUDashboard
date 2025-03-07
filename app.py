@@ -87,7 +87,6 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
             (df["Event_Date"] <= end_date)
         ]
 
-
         # Omdan data til langt format for at få begge linjer i samme plot
         df_long = df_filtered.melt(
             id_vars="Event_Date",
@@ -182,6 +181,8 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     def heatmap():
         # Konverter date_range til pandas datetime (Timestamp)
         start_date, end_date = map(pd.Timestamp, input.date_range())
+
+        print(f"\n✅ [HEATMAP] Dato-interval: {start_date} til {end_date}")
     
         # Filtrer data på dato-range
         df_filtered = df[
@@ -218,6 +219,23 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
 
         return fig
 
+
+    # ========================================================================
+
+    from shiny import render
+
+    @render.text
+    def filtered_rows_count():
+        selected_event = input.selected_event()
+        start_date, end_date = map(pd.Timestamp, input.date_range())
+
+        df_filtered = df[
+            ((df["Event_Name"] == selected_event) | (selected_event == "All Events")) &
+            (df["Event_Date"] >= start_date) &
+            (df["Event_Date"] <= end_date)
+        ]
+
+        return f"{len(df_filtered)} rækker efter filtrering"
 
     # ========================================================================
 
