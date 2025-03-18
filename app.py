@@ -12,6 +12,7 @@ from shiny import App, Inputs, Outputs, Session, ui
 def server(input: Inputs, output: Outputs, session: Session) -> None:
     import pandas as pd
     import plotly.express as px
+    import plotly.graph_objects as go
     from datetime import date
     from shiny import ui, render
     from shinywidgets import render_widget, output_widget

@@ -16,6 +16,7 @@ resources:
 ```{python}
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 from datetime import date
 from shiny import ui, render
 from shinywidgets import render_widget, output_widget
@@ -238,3 +239,7 @@ def heatmap():
 
     return fig
 ```
+
+
+
+

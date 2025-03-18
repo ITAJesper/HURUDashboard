@@ -4,3 +4,6 @@ shiny
 shinywidgets
 anywidget
 jupyter
+scikit-learn
+joblib
+fbprophet
